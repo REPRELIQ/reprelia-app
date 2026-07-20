@@ -1,6 +1,7 @@
 # reprelia-app
 
 ## Descrição
+
 Descreva aqui o propósito do projeto.
 
 ## Como começar
@@ -23,10 +24,13 @@ cd reprelia-app
 ```
 
 ## Contribuindo
+
 Consulte [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Segurança
+
 Consulte [SECURITY.md](SECURITY.md) para reportar vulnerabilidades.
 
 ## Licença
+
 Este projeto está licenciado sob os termos da licença MIT — veja [LICENSE](LICENSE).
