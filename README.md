@@ -60,6 +60,21 @@ Recebe uma mensagem e a retorna de volta.
 { "error": "message is required and must be a string" }
 ```
 
+### `GET /items`
+
+Lista os itens de exemplo (dados em memória, reiniciados a cada execução do servidor;
+os ids `1`, `2` e `3` já existem por padrão).
+
+**Resposta `200`**
+
+```json
+[
+  { "id": "1", "name": "item-1" },
+  { "id": "2", "name": "item-2" },
+  { "id": "3", "name": "item-3" }
+]
+```
+
 ### `PUT /items/:id`
 
 Cria ou substitui um item de exemplo (upsert; dados em memória, reiniciados a cada
