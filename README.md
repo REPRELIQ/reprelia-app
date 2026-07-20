@@ -83,6 +83,35 @@ execução do servidor; os ids `1`, `2` e `3` já existem por padrão).
 { "error": "name is required and must be a non-empty string" }
 ```
 
+### `PATCH /items/:id`
+
+Atualiza parcialmente um item existente (diferente do `PUT`, não faz upsert — o item
+precisa já existir — e só altera os campos enviados no corpo).
+
+**Corpo da requisição** (pelo menos um dos campos)
+
+```json
+{ "name": "renamed-item", "description": "a great item" }
+```
+
+**Resposta `200`**
+
+```json
+{ "id": "1", "name": "renamed-item", "description": "a great item" }
+```
+
+**Resposta `404`** (quando o id não existe)
+
+```json
+{ "error": "item 999 not found" }
+```
+
+**Resposta `400`** (quando nenhum campo é enviado, ou `name`/`description` é inválido)
+
+```json
+{ "error": "at least one of name or description must be provided" }
+```
+
 ### `DELETE /items/:id`
 
 Remove um item de exemplo (dados em memória, reiniciados a cada execução do servidor;
