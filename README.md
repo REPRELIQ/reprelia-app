@@ -15,6 +15,14 @@ npm run dev
 
 O servidor sobe em `http://localhost:3000` (porta configurável via variável de ambiente `PORT`).
 
+## Variáveis de ambiente
+
+| Variável               | Padrão            | Descrição                                          |
+| ---------------------- | ----------------- | -------------------------------------------------- |
+| `PORT`                 | `3000`            | Porta em que o servidor escuta                     |
+| `RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Janela de tempo do rate limiting, em milissegundos |
+| `RATE_LIMIT_MAX`       | `100`             | Máximo de requisições por IP dentro da janela      |
+
 ## Scripts disponíveis
 
 | Script           | Descrição                                                  |
@@ -30,6 +38,13 @@ O servidor sobe em `http://localhost:3000` (porta configurável via variável de
 
 Os corpos de requisição são validados com [Zod](https://zod.dev) (schemas em `src/schemas.ts`);
 requisições inválidas retornam `400` com uma mensagem de erro descritiva.
+
+Todas as rotas têm rate limiting por IP (padrão: 100 requisições a cada 15 minutos, configurável
+via `RATE_LIMIT_WINDOW_MS`/`RATE_LIMIT_MAX`). Ao exceder o limite, a resposta é `429`:
+
+```json
+{ "error": "Too many requests, please try again later." }
+```
 
 ### `GET /health`
 
