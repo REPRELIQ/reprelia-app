@@ -75,6 +75,22 @@ os ids `1`, `2` e `3` já existem por padrão).
 ]
 ```
 
+### `GET /items/:id`
+
+Busca um item de exemplo pelo id.
+
+**Resposta `200`**
+
+```json
+{ "id": "1", "name": "item-1" }
+```
+
+**Resposta `404`** (quando o id não existe)
+
+```json
+{ "error": "item 999 not found" }
+```
+
 ### `PUT /items/:id`
 
 Cria ou substitui um item de exemplo (upsert; dados em memória, reiniciados a cada
