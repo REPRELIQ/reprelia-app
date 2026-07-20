@@ -1,4 +1,5 @@
 import express, { type Express, type Request, type Response } from 'express';
+import { echoBodySchema, parseBody, patchItemBodySchema, putItemBodySchema } from './schemas.js';
 
 export function createApp(): Express {
   const app = express();
@@ -16,14 +17,14 @@ export function createApp(): Express {
   });
 
   app.post('/echo', (req: Request, res: Response) => {
-    const { message } = req.body as { message?: unknown };
+    const parsed = parseBody(echoBodySchema, req.body);
 
-    if (typeof message !== 'string') {
-      res.status(400).json({ error: 'message is required and must be a string' });
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error });
       return;
     }
 
-    res.status(200).json({ message });
+    res.status(200).json({ message: parsed.data.message });
   });
 
   app.get('/items', (_req: Request, res: Response) => {
@@ -45,23 +46,19 @@ export function createApp(): Express {
 
   app.put('/items/:id', (req: Request, res: Response) => {
     const { id } = req.params;
-    const { name, description } = req.body as { name?: unknown; description?: unknown };
+    const parsed = parseBody(putItemBodySchema, req.body);
 
     if (typeof id !== 'string') {
       res.status(400).json({ error: 'id is required' });
       return;
     }
 
-    if (typeof name !== 'string' || name.trim() === '') {
-      res.status(400).json({ error: 'name is required and must be a non-empty string' });
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error });
       return;
     }
 
-    if (description !== undefined && typeof description !== 'string') {
-      res.status(400).json({ error: 'description must be a string' });
-      return;
-    }
-
+    const { name, description } = parsed.data;
     const item = description === undefined ? { name } : { name, description };
     items.set(id, item);
     res.status(200).json({ id, ...item });
@@ -69,29 +66,21 @@ export function createApp(): Express {
 
   app.patch('/items/:id', (req: Request, res: Response) => {
     const { id } = req.params;
-    const { name, description } = req.body as { name?: unknown; description?: unknown };
 
     if (typeof id !== 'string' || !items.has(id)) {
       res.status(404).json({ error: `item ${String(id)} not found` });
       return;
     }
 
-    if (name === undefined && description === undefined) {
-      res.status(400).json({ error: 'at least one of name or description must be provided' });
-      return;
-    }
+    const parsed = parseBody(patchItemBodySchema, req.body);
 
-    if (name !== undefined && (typeof name !== 'string' || name.trim() === '')) {
-      res.status(400).json({ error: 'name must be a non-empty string' });
-      return;
-    }
-
-    if (description !== undefined && typeof description !== 'string') {
-      res.status(400).json({ error: 'description must be a string' });
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error });
       return;
     }
 
     const existing = items.get(id)!;
+    const { name, description } = parsed.data;
     const nextName = name ?? existing.name;
     const nextDescription = description ?? existing.description;
     const updated =

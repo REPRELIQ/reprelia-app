@@ -28,6 +28,9 @@ O servidor sobe em `http://localhost:3000` (porta configurável via variável de
 
 ## API
 
+Os corpos de requisição são validados com [Zod](https://zod.dev) (schemas em `src/schemas.ts`);
+requisições inválidas retornam `400` com uma mensagem de erro descritiva.
+
 ### `GET /health`
 
 Health check do serviço.
