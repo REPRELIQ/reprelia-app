@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
-import { createApp } from '../src/app.js';
+import { createTestApp } from './helpers.js';
 
 describe('GET /health', () => {
-  it('returns 200 with status ok', async () => {
-    const app = createApp();
+  it('returns 200 with status ok, without authentication', async () => {
+    const app = createTestApp();
 
     const response = await request(app).get('/health');
 

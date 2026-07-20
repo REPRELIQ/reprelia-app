@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
-import { createApp } from '../src/app.js';
+import { AUTH_HEADER, createTestApp } from './helpers.js';
 
 describe('GET /items', () => {
   it('returns the seeded items', async () => {
-    const app = createApp();
+    const app = createTestApp();
 
-    const response = await request(app).get('/items');
+    const response = await request(app).get('/items').set('Authorization', AUTH_HEADER);
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual([
@@ -17,12 +17,12 @@ describe('GET /items', () => {
   });
 
   it('reflects changes made through other endpoints', async () => {
-    const app = createApp();
+    const app = createTestApp();
 
-    await request(app).delete('/items/2');
-    await request(app).put('/items/4').send({ name: 'item-4' });
+    await request(app).delete('/items/2').set('Authorization', AUTH_HEADER);
+    await request(app).put('/items/4').set('Authorization', AUTH_HEADER).send({ name: 'item-4' });
 
-    const response = await request(app).get('/items');
+    const response = await request(app).get('/items').set('Authorization', AUTH_HEADER);
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual([
