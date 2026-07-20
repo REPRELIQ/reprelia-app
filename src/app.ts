@@ -26,6 +26,11 @@ export function createApp(): Express {
     res.status(200).json({ message });
   });
 
+  app.get('/items', (_req: Request, res: Response) => {
+    const list = Array.from(items, ([id, item]) => ({ id, ...item }));
+    res.status(200).json(list);
+  });
+
   app.put('/items/:id', (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, description } = req.body as { name?: unknown; description?: unknown };
