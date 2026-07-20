@@ -5,7 +5,7 @@ export function createApp(): Express {
   app.use(express.json());
 
   // In-memory demo data, seeded per app instance so tests stay isolated.
-  const items = new Map<string, { name: string }>([
+  const items = new Map<string, { name: string; description?: string }>([
     ['1', { name: 'item-1' }],
     ['2', { name: 'item-2' }],
     ['3', { name: 'item-3' }],
@@ -28,7 +28,7 @@ export function createApp(): Express {
 
   app.put('/items/:id', (req: Request, res: Response) => {
     const { id } = req.params;
-    const { name } = req.body as { name?: unknown };
+    const { name, description } = req.body as { name?: unknown; description?: unknown };
 
     if (typeof id !== 'string') {
       res.status(400).json({ error: 'id is required' });
@@ -40,8 +40,49 @@ export function createApp(): Express {
       return;
     }
 
-    items.set(id, { name });
-    res.status(200).json({ id, name });
+    if (description !== undefined && typeof description !== 'string') {
+      res.status(400).json({ error: 'description must be a string' });
+      return;
+    }
+
+    const item = description === undefined ? { name } : { name, description };
+    items.set(id, item);
+    res.status(200).json({ id, ...item });
+  });
+
+  app.patch('/items/:id', (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { name, description } = req.body as { name?: unknown; description?: unknown };
+
+    if (typeof id !== 'string' || !items.has(id)) {
+      res.status(404).json({ error: `item ${String(id)} not found` });
+      return;
+    }
+
+    if (name === undefined && description === undefined) {
+      res.status(400).json({ error: 'at least one of name or description must be provided' });
+      return;
+    }
+
+    if (name !== undefined && (typeof name !== 'string' || name.trim() === '')) {
+      res.status(400).json({ error: 'name must be a non-empty string' });
+      return;
+    }
+
+    if (description !== undefined && typeof description !== 'string') {
+      res.status(400).json({ error: 'description must be a string' });
+      return;
+    }
+
+    const existing = items.get(id)!;
+    const nextName = name ?? existing.name;
+    const nextDescription = description ?? existing.description;
+    const updated =
+      nextDescription === undefined
+        ? { name: nextName }
+        : { name: nextName, description: nextDescription };
+    items.set(id, updated);
+    res.status(200).json({ id, ...updated });
   });
 
   app.delete('/items/:id', (req: Request, res: Response) => {
