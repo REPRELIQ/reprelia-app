@@ -60,6 +60,29 @@ Recebe uma mensagem e a retorna de volta.
 { "error": "message is required and must be a string" }
 ```
 
+### `PUT /items/:id`
+
+Cria ou substitui um item de exemplo (upsert; dados em memória, reiniciados a cada
+execução do servidor; os ids `1`, `2` e `3` já existem por padrão).
+
+**Corpo da requisição**
+
+```json
+{ "name": "updated-item" }
+```
+
+**Resposta `200`**
+
+```json
+{ "id": "1", "name": "updated-item" }
+```
+
+**Resposta `400`** (quando `name` está ausente ou é uma string vazia)
+
+```json
+{ "error": "name is required and must be a non-empty string" }
+```
+
 ### `DELETE /items/:id`
 
 Remove um item de exemplo (dados em memória, reiniciados a cada execução do servidor;
