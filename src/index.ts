@@ -1,9 +1,8 @@
-export function greet(name: string): string {
-  return `Hello, ${name}!`;
-}
+import { createApp } from './app.js';
 
-function main(): void {
-  console.log(greet('world'));
-}
+const port = Number(process.env.PORT ?? 3000);
+const app = createApp();
 
-main();
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
