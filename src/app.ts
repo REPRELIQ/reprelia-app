@@ -1,8 +1,28 @@
 import express, { type Express, type Request, type Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { echoBodySchema, parseBody, patchItemBodySchema, putItemBodySchema } from './schemas.js';
 
-export function createApp(): Express {
+export interface CreateAppOptions {
+  rateLimit?: {
+    windowMs?: number;
+    max?: number;
+  };
+}
+
+export function createApp(options: CreateAppOptions = {}): Express {
   const app = express();
+
+  app.use(
+    rateLimit({
+      windowMs:
+        options.rateLimit?.windowMs ?? Number(process.env.RATE_LIMIT_WINDOW_MS ?? 15 * 60 * 1000),
+      limit: options.rateLimit?.max ?? Number(process.env.RATE_LIMIT_MAX ?? 100),
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { error: 'Too many requests, please try again later.' },
+    }),
+  );
+
   app.use(express.json());
 
   // In-memory demo data, seeded per app instance so tests stay isolated.
