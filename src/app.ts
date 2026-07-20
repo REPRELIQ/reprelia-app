@@ -4,6 +4,9 @@ export function createApp(): Express {
   const app = express();
   app.use(express.json());
 
+  // In-memory demo data, seeded per app instance so tests stay isolated.
+  const itemIds = new Set(['1', '2', '3']);
+
   app.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({ status: 'ok' });
   });
@@ -17,6 +20,18 @@ export function createApp(): Express {
     }
 
     res.status(200).json({ message });
+  });
+
+  app.delete('/items/:id', (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    if (typeof id !== 'string' || !itemIds.has(id)) {
+      res.status(404).json({ error: `item ${String(id)} not found` });
+      return;
+    }
+
+    itemIds.delete(id);
+    res.status(204).send();
   });
 
   return app;

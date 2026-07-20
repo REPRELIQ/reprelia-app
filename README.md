@@ -60,6 +60,19 @@ Recebe uma mensagem e a retorna de volta.
 { "error": "message is required and must be a string" }
 ```
 
+### `DELETE /items/:id`
+
+Remove um item de exemplo (dados em memória, reiniciados a cada execução do servidor;
+os ids `1`, `2` e `3` já existem por padrão).
+
+**Resposta `204`** — item removido com sucesso, sem corpo.
+
+**Resposta `404`** (quando o id não existe, ou já foi removido antes)
+
+```json
+{ "error": "item 999 not found" }
+```
+
 ## Estrutura do projeto
 
 ```
