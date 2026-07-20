@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
-import { createApp } from '../src/app.js';
+import { createTestApp } from './helpers.js';
 
 describe('rate limiting', () => {
   it('allows requests up to the configured limit', async () => {
-    const app = createApp({ rateLimit: { windowMs: 60_000, max: 2 } });
+    const app = createTestApp({ rateLimit: { windowMs: 60_000, max: 2 } });
 
     const first = await request(app).get('/health');
     const second = await request(app).get('/health');
@@ -14,7 +14,7 @@ describe('rate limiting', () => {
   });
 
   it('returns 429 once the limit is exceeded', async () => {
-    const app = createApp({ rateLimit: { windowMs: 60_000, max: 2 } });
+    const app = createTestApp({ rateLimit: { windowMs: 60_000, max: 2 } });
 
     await request(app).get('/health');
     await request(app).get('/health');

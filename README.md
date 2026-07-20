@@ -10,18 +10,21 @@ Descreva aqui o propósito do projeto.
 git clone https://github.com/REPRELIQ/reprelia-app.git
 cd reprelia-app
 npm install
-npm run dev
+BASIC_AUTH_USER=admin BASIC_AUTH_PASSWORD=change-me npm run dev
 ```
 
 O servidor sobe em `http://localhost:3000` (porta configurável via variável de ambiente `PORT`).
+`BASIC_AUTH_USER` e `BASIC_AUTH_PASSWORD` são obrigatórias — sem elas o servidor recusa subir.
 
 ## Variáveis de ambiente
 
-| Variável               | Padrão            | Descrição                                          |
-| ---------------------- | ----------------- | -------------------------------------------------- |
-| `PORT`                 | `3000`            | Porta em que o servidor escuta                     |
-| `RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Janela de tempo do rate limiting, em milissegundos |
-| `RATE_LIMIT_MAX`       | `100`             | Máximo de requisições por IP dentro da janela      |
+| Variável               | Padrão            | Descrição                                                    |
+| ---------------------- | ----------------- | ------------------------------------------------------------ |
+| `PORT`                 | `3000`            | Porta em que o servidor escuta                               |
+| `BASIC_AUTH_USER`      | _(obrigatória)_   | Usuário exigido pelo Basic Auth em todas as rotas protegidas |
+| `BASIC_AUTH_PASSWORD`  | _(obrigatória)_   | Senha exigida pelo Basic Auth em todas as rotas protegidas   |
+| `RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Janela de tempo do rate limiting, em milissegundos           |
+| `RATE_LIMIT_MAX`       | `100`             | Máximo de requisições por IP dentro da janela                |
 
 ## Scripts disponíveis
 
@@ -38,6 +41,20 @@ O servidor sobe em `http://localhost:3000` (porta configurável via variável de
 
 Os corpos de requisição são validados com [Zod](https://zod.dev) (schemas em `src/schemas.ts`);
 requisições inválidas retornam `400` com uma mensagem de erro descritiva.
+
+Todas as rotas, exceto `GET /health`, exigem [HTTP Basic Auth](https://developer.mozilla.org/docs/Web/HTTP/Authentication)
+com as credenciais definidas em `BASIC_AUTH_USER`/`BASIC_AUTH_PASSWORD`. Sem credenciais ou com
+credenciais inválidas, a resposta é `401`:
+
+```json
+{ "error": "Unauthorized" }
+```
+
+Exemplo com `curl`:
+
+```bash
+curl -u admin:change-me http://localhost:3000/items
+```
 
 Todas as rotas têm rate limiting por IP (padrão: 100 requisições a cada 15 minutos, configurável
 via `RATE_LIMIT_WINDOW_MS`/`RATE_LIMIT_MAX`). Ao exceder o limite, a resposta é `429`:

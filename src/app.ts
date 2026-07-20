@@ -1,11 +1,16 @@
 import express, { type Express, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
+import { createBasicAuthMiddleware } from './basicAuth.js';
 import { echoBodySchema, parseBody, patchItemBodySchema, putItemBodySchema } from './schemas.js';
 
 export interface CreateAppOptions {
   rateLimit?: {
     windowMs?: number;
     max?: number;
+  };
+  basicAuth?: {
+    username: string;
+    password: string;
   };
 }
 
@@ -22,6 +27,17 @@ export function createApp(options: CreateAppOptions = {}): Express {
       message: { error: 'Too many requests, please try again later.' },
     }),
   );
+
+  const basicAuthUsername = options.basicAuth?.username ?? process.env.BASIC_AUTH_USER;
+  const basicAuthPassword = options.basicAuth?.password ?? process.env.BASIC_AUTH_PASSWORD;
+
+  if (!basicAuthUsername || !basicAuthPassword) {
+    throw new Error(
+      'Basic Auth credentials are required: set BASIC_AUTH_USER and BASIC_AUTH_PASSWORD, or pass options.basicAuth',
+    );
+  }
+
+  app.use(createBasicAuthMiddleware(basicAuthUsername, basicAuthPassword));
 
   app.use(express.json());
 
