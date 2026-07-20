@@ -31,6 +31,18 @@ export function createApp(): Express {
     res.status(200).json(list);
   });
 
+  app.get('/items/:id', (req: Request, res: Response) => {
+    const { id } = req.params;
+    const item = typeof id === 'string' ? items.get(id) : undefined;
+
+    if (!item) {
+      res.status(404).json({ error: `item ${String(id)} not found` });
+      return;
+    }
+
+    res.status(200).json({ id, ...item });
+  });
+
   app.put('/items/:id', (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, description } = req.body as { name?: unknown; description?: unknown };
